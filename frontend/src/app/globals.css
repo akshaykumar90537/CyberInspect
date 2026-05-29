@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: #060912;
+    --color-surface: #0b1120;
+    --color-card: #0f1929;
+    --color-border: #1a2a45;
+    --color-glow: #00d4ff;
+    --color-green: #00ff9d;
+    --color-red: #ff3d5a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--color-bg);
+  }
+
+  body {
+    background: var(--color-bg);
+    color: #e2e8f0;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    antialiased: true;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0b1120; }
+  ::-webkit-scrollbar-thumb { background: #1a2a45; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #00d4ff40; }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(11, 17, 32, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(26, 42, 69, 0.8);
+  }
+
+  .glass-card {
+    background: rgba(15, 25, 41, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: 12px;
+  }
+
+  .glow-border {
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.1), inset 0 0 15px rgba(0, 212, 255, 0.03);
+  }
+
+  .glow-text {
+    color: #00d4ff;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  }
+
+  .glow-green {
+    color: #00ff9d;
+    text-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+  }
+
+  .glow-red {
+    color: #ff3d5a;
+    text-shadow: 0 0 20px rgba(255, 61, 90, 0.5);
+  }
+
+  .cyber-grid-bg {
+    background-image:
+      linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .scan-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(0,212,255,0.1) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .severity-critical { color: #ff3d5a; border-color: #ff3d5a40; background: #ff3d5a10; }
+  .severity-high { color: #ff8c42; border-color: #ff8c4240; background: #ff8c4210; }
+  .severity-medium { color: #ffb800; border-color: #ffb80040; background: #ffb80010; }
+  .severity-low { color: #00d4ff; border-color: #00d4ff40; background: #00d4ff10; }
+  .severity-info { color: #8b5cf6; border-color: #8b5cf640; background: #8b5cf610; }
+}

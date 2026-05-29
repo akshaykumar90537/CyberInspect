@@ -1,0 +1,41 @@
+# ── Environment ──────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+*.env
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+*.so
+.pytest_cache/
+.mypy_cache/
+
+# ── Node / Next.js ────────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+.npm
+*.log
+
+# ── Local Databases ──────────────────────────────────────────────────────────
+# (ignore local database directories if stored within project)
+postgres_data/
+redis_data/
+
+# ── Reports (generated PDFs) ─────────────────────────────────────────────────
+backend/reports/
+reports/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
