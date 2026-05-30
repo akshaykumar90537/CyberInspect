@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { motion } from 'framer-motion'
 import {
   AlertTriangle, Shield, Globe, Clock, Download, Share2,
@@ -115,20 +115,21 @@ function VulnCard({ v }: { v: typeof MOCK_RESULT.vulnerabilities[0] }) {
   const [open, setOpen] = useState(false)
   const cfg = severityConfig[v.severity] ?? severityConfig.info
   const Icon = cfg.icon
+  const sevClass = `sev-${v.severity}`
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className={`rounded-xl border ${cfg.border} ${cfg.bg} overflow-hidden`}>
+      className={`vuln-card ${sevClass}`}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 transition-colors">
+        className="w-full vuln-header">
         <div className="flex items-center gap-3">
-          <Icon size={15} style={{ color: cfg.color }} className="shrink-0" />
-          <div>
-            <div className="font-medium text-white text-sm">{v.name}</div>
+          <Icon size={14} style={{ color: cfg.color }} className="shrink-0" />
+          <div className="text-left">
+            <div className="vuln-name">{v.name}</div>
             {v.affected_url && (
-              <div className="text-xs text-slate-500 font-mono mt-0.5 truncate max-w-xs">
+              <div className="vuln-url">
                 {v.affected_url}
               </div>
             )}
@@ -136,43 +137,43 @@ function VulnCard({ v }: { v: typeof MOCK_RESULT.vulnerabilities[0] }) {
         </div>
         <div className="flex items-center gap-3 shrink-0 ml-4">
           {v.cvss_score && (
-            <span className="text-xs font-mono text-slate-400">CVSS {v.cvss_score.toFixed(1)}</span>
+            <span className="cvss-score">CVSS {v.cvss_score.toFixed(1)}</span>
           )}
-          <span className="text-xs px-2 py-0.5 rounded border font-medium capitalize"
+          <span className="badge font-bold"
             style={{ color: cfg.color, borderColor: `${cfg.color}40`, background: `${cfg.color}12` }}>
             {v.severity}
           </span>
-          {open ? <ChevronUp size={14} className="text-slate-500" /> : <ChevronDown size={14} className="text-slate-500" />}
+          <ChevronDown size={14} className={`toggle-icon ${open ? 'open' : ''}`} />
         </div>
       </button>
 
       {open && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-          className="px-4 pb-4 border-t border-white/5 pt-4 space-y-3">
-          <p className="text-sm text-slate-300 leading-relaxed">{v.description}</p>
+          className="vuln-body">
+          <p className="leading-relaxed">{v.description}</p>
 
           {v.evidence && (
-            <div className="bg-[#060912] rounded-lg p-3 font-mono text-xs text-slate-400 border border-[#1a2a45]">
-              <div className="text-slate-600 text-xs mb-1">Evidence</div>
+            <div className="vuln-evidence">
+              <div className="vuln-evidence-label">Evidence / Payload</div>
               {v.evidence}
             </div>
           )}
 
-          <div className="bg-green-950/20 border border-green-800/30 rounded-lg p-3">
-            <div className="text-xs font-semibold text-green-400 mb-1 flex items-center gap-1">
-              <CheckCircle2 size={12} /> Remediation
+          <div className="remediation-box">
+            <div className="remediation-label">
+              <CheckCircle2 size={12} /> Remediation Strategy
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">{v.remediation}</p>
+            <p className="remediation-text">{v.remediation}</p>
           </div>
 
           {v.exploit_probability !== undefined && (
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span>Exploit probability:</span>
-              <div className="flex-1 h-1.5 bg-[#1a2a45] rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all"
+            <div className="exploit-row">
+              <span className="exploit-label">Exploit Probability:</span>
+              <div className="exploit-track">
+                <div className="exploit-fill"
                   style={{ width: `${(v.exploit_probability * 100).toFixed(0)}%`, background: cfg.color }} />
               </div>
-              <span className="font-mono" style={{ color: cfg.color }}>
+              <span className="exploit-pct" style={{ color: cfg.color }}>
                 {(v.exploit_probability * 100).toFixed(0)}%
               </span>
             </div>
@@ -183,19 +184,21 @@ function VulnCard({ v }: { v: typeof MOCK_RESULT.vulnerabilities[0] }) {
   )
 }
 
-export default function ResultsPage({ params }: { params: { id: string } }) {
+export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
+  const id = resolvedParams.id
   const [scan, setScan] = useState(MOCK_RESULT)
   const [activeFilter, setActiveFilter] = useState<string>('all')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Try to fetch real scan data
-    fetch(`/api/v1/scans/${params.id}`)
+    fetch(`/api/v1/scans/${id}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data) setScan(data) })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [params.id])
+  }, [id])
 
   const filteredVulns = scan.vulnerabilities.filter(v =>
     activeFilter === 'all' || v.severity === activeFilter
@@ -224,15 +227,15 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
       <div className="flex-1 p-6 space-y-6 max-w-6xl mx-auto w-full">
         {/* Back + actions */}
         <div className="flex items-center justify-between">
-          <Link href="/scanner" className="flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 transition-colors">
-            <ArrowLeft size={15} /> Back to Scanner
+          <Link href="/scanner" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 transition-colors">
+            <ArrowLeft size={13} /> Back to Scanner
           </Link>
           <div className="flex gap-2">
-            <button className="flex items-center gap-2 text-sm border border-[#1a2a45] hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 px-4 py-2 rounded-lg transition-all">
-              <Share2 size={14} /> Share
+            <button className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider border border-[#1a2a45] hover:border-[rgba(0,212,255,0.3)] text-slate-300 hover:text-[#00d4ff] px-4 py-2 rounded-lg transition-all bg-[#080d1a]">
+              <Share2 size={13} /> Share
             </button>
-            <button className="flex items-center gap-2 text-sm bg-gradient-to-r from-cyan-500/20 to-blue-600/20 hover:from-cyan-500/30 hover:to-blue-600/30 border border-cyan-500/30 text-cyan-400 px-4 py-2 rounded-lg transition-all">
-              <Download size={14} /> Export PDF
+            <button className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider bg-gradient-to-r from-[rgba(6,182,212,0.12)] to-[rgba(59,130,246,0.12)] hover:from-[rgba(6,182,212,0.22)] hover:to-[rgba(59,130,246,0.22)] border border-[rgba(6,182,212,0.3)] text-[#00d4ff] px-4 py-2 rounded-lg transition-all">
+              <Download size={13} /> Export PDF
             </button>
           </div>
         </div>
@@ -241,47 +244,50 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Grade card */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-5 flex flex-col items-center justify-center text-center">
-            <div className="text-xs text-slate-500 mb-1">Security Grade</div>
-            <div className={`text-6xl font-black ${gradeStyle[scan.security_grade ?? 'F']}`}>
+            className="card p-5 text-center flex flex-col justify-center items-center">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Security Grade</div>
+            <div className={`big-grade grade-${scan.security_grade ?? 'F'} mb-2`}>
               {scan.security_grade}
             </div>
-            <div className="text-xs text-slate-500 mt-1">Trust Score: {scan.trust_score}/100</div>
+            <div className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">Trust Score: {scan.trust_score}/100</div>
           </motion.div>
 
           {/* Threat level */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.06 }}
-            className="glass-card p-5 flex flex-col items-center justify-center text-center">
-            <div className="text-xs text-slate-500 mb-2">Threat Level</div>
-            <div className={`text-lg font-bold uppercase tracking-widest ${
-              scan.threat_level === 'critical' ? 'text-red-400' :
-              scan.threat_level === 'high' ? 'text-orange-400' :
-              scan.threat_level === 'medium' ? 'text-yellow-400' : 'text-green-400'
+            className="card p-5 text-center flex flex-col justify-center items-center">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Threat Level</div>
+            <div className={`threat-level uppercase font-black text-lg ${
+              scan.threat_level === 'critical' ? 'text-red-400 text-shadow-[0_0_20px_#ef444450]' :
+              scan.threat_level === 'high' ? 'text-orange-400 text-shadow-[0_0_20px_#f9731650]' :
+              scan.threat_level === 'medium' ? 'text-yellow-400 text-shadow-[0_0_20px_#eab30850]' : 'text-green-400'
             }`}>{scan.threat_level}</div>
-            <div className="mt-2 flex gap-1">
-              {[1,2,3,4,5].map(n => (
-                <div key={n} className={`w-4 h-1.5 rounded-full ${
-                  n <= (scan.threat_level === 'critical' ? 5 : scan.threat_level === 'high' ? 4 : scan.threat_level === 'medium' ? 3 : 2)
-                    ? 'bg-red-500' : 'bg-[#1a2a45]'
-                }`} />
-              ))}
+            <div className="threat-bars mt-3">
+              {[1, 2, 3, 4, 5].map(n => {
+                const threatVal = scan.threat_level === 'critical' ? 5 : scan.threat_level === 'high' ? 4 : scan.threat_level === 'medium' ? 3 : 2
+                return (
+                  <div key={n} className={`tbar ${n <= threatVal ? 'on' : ''}`} />
+                )
+              })}
             </div>
           </motion.div>
 
           {/* Vuln counts */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.12 }}
-            className="glass-card p-5">
-            <div className="text-xs text-slate-500 mb-3">Vulnerabilities</div>
-            <div className="space-y-1.5">
+            className="card p-4 flex flex-col justify-between">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-3">Vulnerability Split</div>
+            <div className="space-y-1">
               {[
-                { label: 'Critical', count: scan.critical_count, color: '#ff3d5a' },
-                { label: 'High', count: scan.high_count, color: '#ff8c42' },
-                { label: 'Medium', count: scan.medium_count, color: '#ffb800' },
-                { label: 'Low', count: scan.low_count, color: '#00d4ff' },
+                { label: 'Critical', count: scan.critical_count, color: '#ff3d5a', bg: 'bg-[#ff3d5a]' },
+                { label: 'High', count: scan.high_count, color: '#ff8c42', bg: 'bg-[#ff8c42]' },
+                { label: 'Medium', count: scan.medium_count, color: '#ffb800', bg: 'bg-[#ffb800]' },
+                { label: 'Low', count: scan.low_count, color: '#00d4ff', bg: 'bg-[#00d4ff]' },
               ].map(row => (
-                <div key={row.label} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">{row.label}</span>
-                  <span className="font-mono font-bold" style={{ color: row.color }}>{row.count}</span>
+                <div key={row.label} className="count-row">
+                  <span className="count-label">
+                    <span className={`count-dot ${row.bg}`} />
+                    {row.label}
+                  </span>
+                  <span className="count-val" style={{ color: row.color }}>{row.count}</span>
                 </div>
               ))}
             </div>
@@ -289,11 +295,11 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
 
           {/* Tech stack */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.18 }}
-            className="glass-card p-5">
-            <div className="text-xs text-slate-500 mb-3">Technologies Detected</div>
-            <div className="flex flex-wrap gap-1.5">
+            className="card p-4 flex flex-col justify-between">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-3">Technologies Detected</div>
+            <div className="tech-chips flex flex-wrap gap-1.5">
               {scan.technologies.map(tech => (
-                <span key={tech} className="text-xs px-2 py-0.5 rounded bg-[#0f1929] border border-[#1a2a45] text-slate-300">
+                <span key={tech} className="chip !text-[10px] font-semibold">
                   {tech}
                 </span>
               ))}
@@ -305,49 +311,58 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Charts column */}
           <div className="space-y-4">
-            <div className="glass-card p-5">
-              <h3 className="text-sm font-semibold text-white mb-3">Attack Surface</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <RadarChart data={radarData}>
-                  <PolarGrid stroke="#1a2a45" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 10 }} />
-                  <Radar dataKey="score" stroke="#ff3d5a" fill="#ff3d5a" fillOpacity={0.15} strokeWidth={2} />
-                </RadarChart>
-              </ResponsiveContainer>
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">Attack Surface</h3>
+              </div>
+              <div className="card-body !py-2">
+                <ResponsiveContainer width="100%" height={170}>
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="#0f2040" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 9 }} />
+                    <Radar dataKey="score" stroke="#ff3d5a" fill="#ff3d5a" fillOpacity={0.12} strokeWidth={1.5} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div className="glass-card p-5">
-              <h3 className="text-sm font-semibold text-white mb-3">Severity Breakdown</h3>
-              <ResponsiveContainer width="100%" height={160}>
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value" paddingAngle={3}>
-                    {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                  </Pie>
-                  <Tooltip formatter={(v, n) => [v, n]} contentStyle={{ background: '#0f1929', border: '1px solid #1a2a45', borderRadius: 8, fontSize: 12 }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {pieData.map(p => (
-                  <span key={p.name} className="flex items-center gap-1 text-xs text-slate-400">
-                    <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-                    {p.name} ({p.value})
-                  </span>
-                ))}
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">Severity Breakdown</h3>
+              </div>
+              <div className="card-body flex items-center gap-4 !py-4">
+                <div className="w-[80px] h-[80px] shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={28} outerRadius={38} dataKey="value" paddingAngle={2}>
+                        {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                      </Pie>
+                      <Tooltip formatter={(v, n) => [v, n]} contentStyle={{ background: '#0f1929', border: '1px solid #1a2a45', borderRadius: 8, fontSize: 10 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex-1 space-y-1">
+                  {pieData.map(p => (
+                    <div key={p.name} className="flex items-center justify-between text-[11px]">
+                      <span className="flex items-center gap-1.5 text-slate-400 font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: p.color }} />
+                        {p.name}
+                      </span>
+                      <span className="font-mono text-slate-300 font-bold">{p.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Vulnerability list */}
           <div className="lg:col-span-2 space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="filter-bar !mb-0">
               {['all', 'critical', 'high', 'medium', 'low'].map(f => (
                 <button key={f}
                   onClick={() => setActiveFilter(f)}
-                  className={`text-xs px-3 py-1.5 rounded-lg border capitalize transition-all ${
-                    activeFilter === f
-                      ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400'
-                      : 'border-[#1a2a45] text-slate-400 hover:border-[#2a3a55]'
-                  }`}>
+                  className={`filter-btn ${activeFilter === f ? 'active' : ''}`}>
                   {f} {f !== 'all' && `(${scan[`${f}_count` as keyof typeof scan] || 0})`}
                 </button>
               ))}
@@ -355,7 +370,7 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
 
             <div className="space-y-2">
               {filteredVulns.length === 0 ? (
-                <div className="glass-card p-8 text-center text-slate-500">
+                <div className="card p-8 text-center text-slate-500">
                   <CheckCircle2 size={24} className="mx-auto mb-2 text-green-400" />
                   No {activeFilter} severity findings!
                 </div>

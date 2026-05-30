@@ -1,6 +1,6 @@
 'use client'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Shield, Zap, Brain, BarChart3, FileText, Lock,
@@ -52,6 +52,11 @@ export default function LandingPage() {
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [scanUrl, setScanUrl] = useState('')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#060912] text-slate-200 overflow-x-hidden">
@@ -89,7 +94,7 @@ export default function LandingPage() {
         <motion.div style={{ y }} className="absolute inset-0 bg-radial-glow opacity-60" />
         
         {/* Floating particles */}
-        {[...Array(20)].map((_, i) => (
+        {mounted && [...Array(20)].map((_, i) => (
           <motion.div key={i}
             className="absolute w-1 h-1 bg-cyan-500/40 rounded-full"
             style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
@@ -139,34 +144,45 @@ export default function LandingPage() {
           <motion.div
             initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="mt-16 glass-card border border-[#1a2a45] rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+            className="mt-16 terminal text-left">
             {/* Terminal header */}
-            <div className="flex items-center gap-2 px-5 py-3 bg-[#0b1120] border-b border-[#1a2a45]">
-              <div className="w-3 h-3 rounded-full bg-red-500/80" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-              <div className="w-3 h-3 rounded-full bg-green-500/80" />
-              <span className="ml-3 text-xs text-slate-500 font-mono">cyberinspect-ai — scan https://demo.target.com</span>
+            <div className="terminal-header">
+              <div className="term-dots">
+                <div className="term-dot" style={{ background: '#ef4444' }} />
+                <div className="term-dot" style={{ background: '#eab308' }} />
+                <div className="term-dot" style={{ background: '#22c55e' }} />
+              </div>
+              <span className="term-title">cyberinspect@scanner — https://demo.target.com</span>
+              <div className="term-status">
+                <span className="text-slate-600 font-mono text-[10px]">100%</span>
+              </div>
             </div>
-            <div className="p-6 font-mono text-sm text-left space-y-1">
-              {[
-                { t: '[*] Starting CyberInspect AI scan engine...', c: 'text-cyan-400' },
-                { t: '[+] Target: https://demo.target.com | Type: Full', c: 'text-slate-400' },
-                { t: '[*] Checking 7 security headers...', c: 'text-cyan-400' },
-                { t: '[!] MISSING: Strict-Transport-Security (HSTS)', c: 'text-yellow-400' },
-                { t: '[!] MISSING: Content-Security-Policy', c: 'text-orange-400' },
-                { t: '[*] Crawling 34 URLs... Discovering forms...', c: 'text-cyan-400' },
-                { t: '[!!!] CRITICAL: Reflected XSS in /search?q= [CVSS 7.4]', c: 'text-red-400' },
-                { t: '[!!!] CRITICAL: SQL Injection in /api/users?id= [CVSS 9.8]', c: 'text-red-400' },
-                { t: '[+] Scan complete. 11 findings. Grade: D | Score: 42/100', c: 'text-green-400' },
+            <div className="terminal-progress">
+              <div className="terminal-progress-fill" style={{ width: '100%' }}></div>
+            </div>
+            <div className="terminal-body !min-height-0">
+              {mounted && [
+                { t: '[*] Starting CyberInspect AI scan engine...', c: 'tl-info' },
+                { t: '[+] Target: https://demo.target.com | Type: Full', c: 'tl-cmd' },
+                { t: '[*] Checking 7 security headers...', c: 'tl-info' },
+                { t: '[!] MISSING: Strict-Transport-Security (HSTS)', c: 'tl-warning' },
+                { t: '[!] MISSING: Content-Security-Policy', c: 'tl-warning' },
+                { t: '[*] Crawling 34 URLs... Discovering forms...', c: 'tl-info' },
+                { t: '[!!!] CRITICAL: Reflected XSS in /search?q= [CVSS 7.4]', c: 'tl-error' },
+                { t: '[!!!] CRITICAL: SQL Injection in /api/users?id= [CVSS 9.8]', c: 'tl-error' },
+                { t: '[+] Scan complete. 11 findings. Grade: D | Score: 42/100', c: 'tl-success' },
               ].map((line, i) => (
                 <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + i * 0.1 }} className={line.c}>
+                  <span className="tl-ts">{new Date().toLocaleTimeString('en-US', { hour12: false })}</span>
                   {line.t}
                 </motion.div>
               ))}
-              <motion.span
-                animate={{ opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1 }}
-                className="text-cyan-400">█</motion.span>
+              {mounted && (
+                <motion.span
+                  animate={{ opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1 }}
+                  className="cursor">█</motion.span>
+              )}
             </div>
           </motion.div>
         </div>

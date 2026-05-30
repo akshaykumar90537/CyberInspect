@@ -16,6 +16,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <div className="cyber-grid"></div>
+        <div className="glow-orb orb1"></div>
+        <div className="glow-orb orb2"></div>
+        <div className="glow-orb orb3"></div>
         {children}
       </body>
     </html>

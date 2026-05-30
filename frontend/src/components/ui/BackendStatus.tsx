@@ -26,18 +26,15 @@ export default function BackendStatus() {
   if (status === 'checking') return null
 
   return (
-    <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border ${
+    <div className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full border ${
       status === 'online'
-        ? 'text-green-400 bg-green-950/30 border-green-800/30'
-        : 'text-red-400 bg-red-950/30 border-red-800/30'
+        ? 'text-[#00ff9d] bg-[rgba(0,255,157,0.03)] border-[rgba(0,255,157,0.15)]'
+        : 'text-[#ef4444] bg-[rgba(239,68,68,0.03)] border-[rgba(239,68,68,0.15)]'
     }`}>
       <span className={`w-1.5 h-1.5 rounded-full ${
-        status === 'online' ? 'bg-green-400 animate-pulse' : 'bg-red-400'
+        status === 'online' ? 'bg-[#00ff9d] animate-pulse' : 'bg-[#ef4444]'
       }`} />
       {status === 'online' ? 'Backend connected' : 'Backend offline'}
-      {status === 'offline' && (
-        <span className="ml-1 text-red-300/70">— run uvicorn</span>
-      )}
     </div>
   )
 }

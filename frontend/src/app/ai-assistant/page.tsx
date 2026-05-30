@@ -19,27 +19,27 @@ function MessageBubble({ msg }: { msg: Message }) {
     <motion.div
       initial={{ opacity: 0, y: 10, x: isUser ? 10 : -10 }}
       animate={{ opacity: 1, y: 0, x: 0 }}
-      className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+      className={`flex gap-3 max-w-[85%] ${isUser ? 'flex-row-reverse self-end ml-auto' : 'flex-row'}`}>
       {/* Avatar */}
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-        isUser ? 'bg-gradient-to-br from-blue-500 to-purple-600' : 'bg-gradient-to-br from-cyan-500 to-blue-600'
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,212,255,0.2)] ${
+        isUser ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-cyan-500 to-blue-600'
       }`}>
         {isUser ? <User size={14} className="text-white" /> : <Bot size={14} className="text-white" />}
       </div>
 
       {/* Bubble */}
-      <div className={`max-w-2xl rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+      <div className={`rounded-xl px-4 py-2.5 text-xs leading-relaxed border ${
         isUser
-          ? 'bg-blue-600/20 border border-blue-500/20 text-slate-200 rounded-tr-sm'
-          : 'glass-card border-cyan-500/10 text-slate-200 rounded-tl-sm'
+          ? 'bg-[#1e1b4b80] border-[#312e8160] text-slate-200 rounded-tr-none'
+          : 'bg-[#0c1526] border-[#0f2040] text-slate-200 rounded-tl-none'
       }`}>
         {/* Render markdown-like content */}
         <div className="prose prose-invert prose-sm max-w-none">
           {msg.content.split('\n').map((line, i) => {
-            if (line.startsWith('## ')) return <h3 key={i} className="text-white font-bold text-sm mt-2 mb-1">{line.slice(3)}</h3>
-            if (line.startsWith('**') && line.endsWith('**')) return <strong key={i} className="text-white">{line.slice(2, -2)}</strong>
-            if (line.startsWith('- ')) return <li key={i} className="ml-3 list-disc text-slate-300">{line.slice(2)}</li>
-            if (line.startsWith('```')) return <div key={i} className="font-mono text-xs bg-[#060912] rounded px-2 py-1 my-1 text-cyan-300">{line.slice(3)}</div>
+            if (line.startsWith('## ')) return <h3 key={i} className="text-white font-bold text-xs mt-2 mb-1 uppercase tracking-wide border-b border-[#0f2040] pb-1">{line.slice(3)}</h3>
+            if (line.startsWith('**') && line.endsWith('**')) return <strong key={i} className="text-white font-semibold">{line.slice(2, -2)}</strong>
+            if (line.startsWith('- ')) return <li key={i} className="ml-3 list-disc text-slate-400 font-medium mb-0.5">{line.slice(2)}</li>
+            if (line.startsWith('```')) return <div key={i} className="font-mono text-[10px] bg-[#04080f] border border-[#0f2040] rounded px-2 py-1.5 my-1.5 text-cyan-300 overflow-x-auto leading-relaxed">{line.slice(3)}</div>
             return line ? <p key={i} className="mb-1">{line}</p> : <br key={i} />
           })}
         </div>
@@ -114,19 +114,22 @@ What security question can I help you with today? [High confidence]`,
     <div className="flex flex-col h-screen">
       <TopBar title="AI Security Assistant" subtitle="Powered by GPT-4 · Cybersecurity expert" />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#060912]">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}
 
           {loading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,212,255,0.2)]">
                 <Bot size={14} className="text-white" />
               </div>
-              <div className="glass-card px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-2">
-                <Loader2 size={14} className="text-cyan-400 animate-spin" />
-                <span className="text-sm text-slate-400">Analyzing...</span>
+              <div className="bg-[#0c1526] border border-[#0f2040] rounded-xl rounded-tl-none p-1 flex items-center">
+                <div className="typing-indicator select-none">
+                  <div className="typing-dot" />
+                  <div className="typing-dot" />
+                  <div className="typing-dot" />
+                </div>
               </div>
             </motion.div>
           )}
@@ -138,8 +141,8 @@ What security question can I help you with today? [High confidence]`,
           <div className="px-6 pb-3 flex flex-wrap gap-2">
             {QUICK_PROMPTS.map(qp => (
               <button key={qp.label} onClick={() => sendMessage(qp.prompt)}
-                className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg border border-[#1a2a45] hover:border-cyan-500/30 text-slate-400 hover:text-cyan-400 transition-all">
-                <qp.icon size={12} />
+                className="qp">
+                <qp.icon size={11} className="text-[#00d4ff]" />
                 {qp.label}
               </button>
             ))}
@@ -147,26 +150,26 @@ What security question can I help you with today? [High confidence]`,
         )}
 
         {/* Input area */}
-        <div className="p-4 border-t border-[#1a2a45] bg-[#0b1120]/80 backdrop-blur-md">
+        <div className="p-4 border-t border-[#0f1f35] bg-[#080d1a]">
           <div className="flex items-end gap-3 max-w-4xl mx-auto">
-            <div className="flex-1 flex items-end gap-2 bg-[#0f1929] border border-[#1a2a45] focus-within:border-cyan-500/40 rounded-xl px-4 py-3 transition-all">
+            <div className="flex-1 flex items-end gap-2 bg-[#0c1526] border border-[#0f2040] focus-within:border-[rgba(0,212,255,0.3)] rounded-xl px-4 py-2.5 transition-all">
               <textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
                 placeholder="Ask about vulnerabilities, security best practices, OWASP..."
                 rows={1}
-                className="flex-1 bg-transparent text-sm text-white placeholder-slate-600 outline-none resize-none max-h-32"
+                className="flex-1 bg-transparent text-xs text-white placeholder-slate-600 outline-none resize-none max-h-32 leading-relaxed"
               />
             </div>
             <button
               onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
-              className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all hover:shadow-lg hover:shadow-cyan-500/25 shrink-0">
-              <Send size={15} className="text-white" />
+              className="w-9 h-9 flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all hover:shadow-lg hover:shadow-cyan-500/25 shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+              <Send size={13} className="text-white" />
             </button>
           </div>
-          <p className="text-center text-xs text-slate-600 mt-2">
+          <p className="text-center text-[10px] text-slate-600 mt-2 font-mono">
             AI may produce inaccurate information. Always verify security advice with a qualified professional.
           </p>
         </div>

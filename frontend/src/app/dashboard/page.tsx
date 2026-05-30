@@ -76,7 +76,6 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <TopBar title="Security Dashboard" subtitle="Real-time vulnerability intelligence" />
-
       <div className="flex-1 p-6 space-y-6">
         {/* ── STAT CARDS ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -84,20 +83,19 @@ export default function DashboardPage() {
             <motion.div key={s.label}
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              className="glass-card p-5 hover:scale-[1.02] transition-transform cursor-default group">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ background: `${s.color}18`, border: `1px solid ${s.color}30` }}>
-                  <s.icon size={18} style={{ color: s.color }}
+              className="card p-4 hover:-translate-y-[1px] cursor-default group">
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-9 h-9 rounded-[10px] flex items-center justify-center"
+                  style={{ background: `${s.color}12`, border: `1px solid ${s.color}20` }}>
+                  <s.icon size={17} style={{ color: s.color }}
                     className={s.pulse ? 'animate-pulse' : ''} />
                 </div>
-                <span className={`text-xs flex items-center gap-1 ${s.up ? 'text-green-400' : 'text-red-400'}`}>
-                  {s.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                  {s.delta}
+                <span className={`text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider ${s.up ? 'text-[#00ff9d]' : 'text-[#ff3d5a]'}`}>
+                  {s.up ? '▲' : '▼'} {s.delta.split(' ')[0]}
                 </span>
               </div>
-              <div className="text-2xl font-bold text-white mb-1">{s.value}</div>
-              <div className="text-xs text-slate-500">{s.label}</div>
+              <div className="text-2xl font-bold text-white mb-0.5 tracking-tight font-sans">{s.value}</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{s.label}</div>
             </motion.div>
           ))}
         </div>
@@ -106,130 +104,150 @@ export default function DashboardPage() {
         <div className="grid lg:grid-cols-3 gap-4">
           {/* Scan trend area chart */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="lg:col-span-2 glass-card p-5">
-            <div className="flex items-center justify-between mb-4">
+            className="lg:col-span-2 card">
+            <div className="card-header">
               <div>
-                <h3 className="font-semibold text-white text-sm">Scan Activity</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Scans and vulnerabilities per day</p>
+                <h3 className="card-title">Scan Activity</h3>
+                <p className="card-sub">Scans and vulnerabilities per day</p>
               </div>
-              <div className="flex items-center gap-3 text-xs">
-                <span className="flex items-center gap-1 text-cyan-400"><span className="w-2 h-2 rounded-full bg-cyan-400 inline-block" /> Scans</span>
-                <span className="flex items-center gap-1 text-red-400"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" /> Vulns</span>
+              <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider">
+                <span className="flex items-center gap-1.5 text-cyan-400"><span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block" /> Scans</span>
+                <span className="flex items-center gap-1.5 text-red-400"><span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" /> Vulns</span>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={scanTrend}>
-                <defs>
-                  <linearGradient id="scansGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="vulnsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ff3d5a" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#ff3d5a" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="scans" stroke="#00d4ff" fill="url(#scansGrad)" strokeWidth={2} dot={false} name="Scans" />
-                <Area type="monotone" dataKey="vulns" stroke="#ff3d5a" fill="url(#vulnsGrad)" strokeWidth={2} dot={false} name="Vulns" />
-              </AreaChart>
-            </ResponsiveContainer>
+            <div className="card-body !py-4">
+              <ResponsiveContainer width="100%" height={160}>
+                <AreaChart data={scanTrend}>
+                  <defs>
+                    <linearGradient id="scansGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="vulnsGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ff3d5a" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#ff3d5a" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="day" tick={{ fill: '#475569', fontSize: 10, fontFamily: 'monospace' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#475569', fontSize: 10, fontFamily: 'monospace' }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area type="monotone" dataKey="scans" stroke="#00d4ff" fill="url(#scansGrad)" strokeWidth={1.5} dot={false} name="Scans" />
+                  <Area type="monotone" dataKey="vulns" stroke="#ff3d5a" fill="url(#vulnsGrad)" strokeWidth={1.5} dot={false} name="Vulns" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </motion.div>
 
           {/* Severity pie chart */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-            className="glass-card p-5">
-            <h3 className="font-semibold text-white text-sm mb-1">Severity Distribution</h3>
-            <p className="text-xs text-slate-500 mb-4">All vulnerabilities this month</p>
-            <ResponsiveContainer width="100%" height={160}>
-              <PieChart>
-                <Pie data={severityDist} cx="50%" cy="50%" innerRadius={45} outerRadius={70}
-                  dataKey="value" paddingAngle={3}>
-                  {severityDist.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="space-y-1.5 mt-2">
-              {severityDist.map(s => (
-                <div key={s.name} className="flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full" style={{ background: s.color }} />
-                    <span className="text-slate-400">{s.name}</span>
-                  </span>
-                  <span className="font-mono text-slate-300">{s.value}</span>
-                </div>
-              ))}
+            className="card">
+            <div className="card-header">
+              <div>
+                <h3 className="card-title">Severity Distribution</h3>
+                <p className="card-sub">All findings this month</p>
+              </div>
             </div>
-          </motion.div>
-        </div>
+            <div className="card-body flex items-center gap-4 !py-4">
+              <div className="w-[100px] h-[100px] shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={severityDist} cx="50%" cy="50%" innerRadius={35} outerRadius={48}
+                      dataKey="value" paddingAngle={2}>
+                      {severityDist.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex-1 space-y-1">
+                {severityDist.map(s => (
+                  <div key={s.name} className="flex items-center justify-between text-[11px]">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: s.color }} />
+                      <span className="text-slate-400 font-medium">{s.name}</span>
+                    </span>
+                    <span className="font-mono text-slate-300 font-bold">{s.value}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
 
         {/* ── CHARTS ROW 2 ── */}
         <div className="grid lg:grid-cols-3 gap-4">
           {/* Security radar */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-            className="glass-card p-5">
-            <h3 className="font-semibold text-white text-sm mb-1">Security Coverage</h3>
-            <p className="text-xs text-slate-500 mb-2">Attack surface assessment</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <RadarChart data={radarData}>
-                <PolarGrid stroke="#1a2a45" />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 10 }} />
-                <Radar name="Score" dataKey="A" stroke="#00d4ff" fill="#00d4ff" fillOpacity={0.15} strokeWidth={2} />
-              </RadarChart>
-            </ResponsiveContainer>
+            className="card">
+            <div className="card-header">
+              <div>
+                <h3 className="card-title">Security Coverage</h3>
+                <p className="card-sub">Attack surface assessment</p>
+              </div>
+            </div>
+            <div className="card-body !py-2">
+              <ResponsiveContainer width="100%" height={165}>
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="#0f2040" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 9 }} />
+                  <Radar name="Score" dataKey="A" stroke="#00d4ff" fill="#00d4ff" fillOpacity={0.12} strokeWidth={1.5} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
           </motion.div>
 
           {/* Recent scans table */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
-            className="lg:col-span-2 glass-card p-5">
-            <div className="flex items-center justify-between mb-4">
+            className="lg:col-span-2 card">
+            <div className="card-header">
               <div>
-                <h3 className="font-semibold text-white text-sm">Recent Scans</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Latest security assessments</p>
+                <h3 className="card-title">Recent Scans</h3>
+                <p className="card-sub">Latest security assessments</p>
               </div>
-              <Link href="/scanner" className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
-                New scan <ArrowUpRight size={12} />
+              <Link href="/scanner" className="text-[10px] font-bold uppercase tracking-wider text-[#00d4ff] hover:text-cyan-300 flex items-center gap-1">
+                New scan <ArrowUpRight size={11} />
               </Link>
             </div>
-            <div className="space-y-2">
-              {recentScans.map((scan, i) => (
-                <motion.div key={scan.url}
-                  initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.05 }}
-                  className="flex items-center justify-between p-3 rounded-lg bg-[#060912]/60 hover:bg-[#060912] border border-transparent hover:border-[#1a2a45] transition-all cursor-pointer group">
-                  <div className="flex items-center gap-3">
-                    <Globe size={14} className="text-slate-500 shrink-0" />
-                    <div>
-                      <div className="text-sm text-slate-200 font-mono">{scan.url}</div>
-                      <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-                        <Clock size={10} /> {scan.time}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-center hidden sm:block">
-                      <div className="text-xs text-slate-500">Vulns</div>
-                      <div className="text-sm font-bold text-slate-200">{scan.vulns}</div>
-                    </div>
-                    {scan.critical > 0 && (
-                      <div className="text-center">
-                        <div className="text-xs text-red-400">{scan.critical} critical</div>
-                      </div>
-                    )}
-                    <div className={`text-2xl font-black ${gradeColor(scan.grade)}`}>{scan.grade}</div>
-                    <div className="text-right hidden md:block">
-                      <div className="text-xs text-slate-500">Score</div>
-                      <div className="text-sm font-mono text-slate-200">{scan.score}/100</div>
-                    </div>
-                    <ArrowUpRight size={14} className="text-slate-600 group-hover:text-cyan-400 transition-colors" />
-                  </div>
-                </motion.div>
-              ))}
+            <div className="card-body !p-0 overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Target</th>
+                    <th>Status</th>
+                    <th>Findings</th>
+                    <th>Grade</th>
+                    <th>Score</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentScans.map((scan, i) => (
+                    <tr key={scan.url} className="cursor-pointer">
+                      <td className="font-mono text-[#00d4ff] font-semibold">{scan.url}</td>
+                      <td>
+                        <span className="badge badge-completed">completed</span>
+                      </td>
+                      <td>
+                        {scan.vulns > 0 ? (
+                          <div className="flex gap-1.5">
+                            {scan.critical > 0 && <span className="badge badge-critical">{scan.critical} critical</span>}
+                            <span className="badge badge-medium">{scan.vulns - scan.critical} other</span>
+                          </div>
+                        ) : (
+                          <span className="badge badge-completed">Clean</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`font-black text-sm ${gradeColor(scan.grade)}`}>{scan.grade}</span>
+                      </td>
+                      <td className="font-mono text-slate-300">{scan.score}/100</td>
+                      <td className="text-slate-500 font-mono">{scan.time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </motion.div>
         </div>
@@ -237,31 +255,31 @@ export default function DashboardPage() {
         {/* ── THREAT INTEL CARDS ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { title: 'Most Exploited', icon: Target, color: '#ff3d5a', items: ['SQL Injection', 'XSS Reflected', 'Missing CSP'], tag: 'Active threats' },
-            { title: 'Quick Wins', icon: Zap, color: '#00ff9d', items: ['Add HSTS Header', 'Enable CSP', 'Fix Cookie Flags'], tag: 'Easy fixes' },
-            { title: 'Trending CVEs', icon: Eye, color: '#8b5cf6', items: ['CVE-2024-1234', 'CVE-2024-5678', 'CVE-2024-9012'], tag: 'This week' },
+            { title: '⚑ Most Exploited', icon: Target, color: '#ff3d5a', badgeType: 'badge-critical', items: ['SQL Injection', 'XSS Reflected', 'Missing CSP'], tag: 'Active threats' },
+            { title: '⚡ Quick Wins', icon: Zap, color: '#00ff9d', badgeType: 'badge-completed', items: ['Add HSTS Header', 'Enable CSP', 'Fix Cookie Flags'], tag: 'Easy fixes' },
+            { title: '👁 Trending CVEs', icon: Eye, color: '#8b5cf6', badgeType: 'badge-info', items: ['CVE-2024-1234', 'CVE-2024-5678', 'CVE-2024-9012'], tag: 'This week' },
           ].map((card, i) => (
             <motion.div key={card.title}
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + i * 0.08 }}
-              className="glass-card p-5 hover:scale-[1.01] transition-transform">
+              className="card p-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: `${card.color}18`, border: `1px solid ${card.color}30` }}>
-                  <card.icon size={15} style={{ color: card.color }} />
+                  style={{ background: `${card.color}12`, border: `1px solid ${card.color}20` }}>
+                  <card.icon size={14} style={{ color: card.color }} />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-white">{card.title}</div>
-                  <div className="text-xs text-slate-500">{card.tag}</div>
+                  <div className="text-xs font-bold text-white uppercase tracking-wider">{card.title}</div>
+                  <div className="text-[10px] text-slate-500 font-mono">{card.tag}</div>
                 </div>
               </div>
-              <ul className="space-y-2">
+              <div className="space-y-1.5">
                 {card.items.map((item, j) => (
-                  <li key={item} className="flex items-center gap-2 text-sm text-slate-300">
-                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: card.color }} />
-                    {item}
-                  </li>
+                  <div key={item} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] justify-between">
+                    <span className="text-slate-300 font-medium">{item}</span>
+                    <span className={`badge ${card.badgeType} scale-[0.9]`}>{j === 0 ? 'critical' : j === 1 ? 'high' : 'medium'}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </motion.div>
           ))}
         </div>

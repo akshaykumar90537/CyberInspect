@@ -33,13 +33,13 @@ export default function AdminPage() {
           {SYS_STATS.map((s, i) => (
             <motion.div key={s.label}
               initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className="glass-card p-5">
+              className="card p-4 hover:-translate-y-[1px] transition-transform cursor-default group">
               <div className="flex items-center justify-between mb-3">
-                <s.icon size={16} style={{ color: s.color }} />
-                <TrendingUp size={12} className="text-green-400" />
+                <s.icon size={15} style={{ color: s.color }} />
+                <TrendingUp size={11} className="text-[#00ff9d]" />
               </div>
-              <div className="text-2xl font-bold text-white">{s.value}</div>
-              <div className="text-xs text-slate-500 mt-1">{s.label}</div>
+              <div className="text-2xl font-bold text-white font-sans tracking-tight">{s.value}</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">{s.label}</div>
             </motion.div>
           ))}
         </div>
@@ -47,79 +47,85 @@ export default function AdminPage() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Scan volume chart */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="lg:col-span-2 glass-card p-5">
-            <h3 className="text-sm font-semibold text-white mb-4">Daily Scan Volume</h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={dailyScans}>
-                <XAxis dataKey="d" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: '#0f1929', border: '1px solid #1a2a45', borderRadius: 8, fontSize: 12 }} />
-                <Bar dataKey="s" name="Scans" fill="#00d4ff" radius={[4, 4, 0, 0]} fillOpacity={0.8} />
-              </BarChart>
-            </ResponsiveContainer>
+            className="lg:col-span-2 card">
+            <div className="card-header">
+              <h3 className="card-title">Daily Scan Volume</h3>
+            </div>
+            <div className="card-body !py-2">
+              <ResponsiveContainer width="100%" height={165}>
+                <BarChart data={dailyScans}>
+                  <XAxis dataKey="d" tick={{ fill: '#475569', fontSize: 10, fontFamily: 'monospace' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#475569', fontSize: 10, fontFamily: 'monospace' }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ background: '#0f1929', border: '1px solid #1a2a45', borderRadius: 8, fontSize: 10 }} />
+                  <Bar dataKey="s" name="Scans" fill="#00d4ff" radius={[4, 4, 0, 0]} fillOpacity={0.8} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </motion.div>
 
           {/* System health */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-            className="glass-card p-5">
-            <h3 className="text-sm font-semibold text-white mb-4">System Health</h3>
-            <div className="space-y-4">
-              {[
-                { name: 'API Backend', ok: true },
-                { name: 'PostgreSQL', ok: true },
-                { name: 'Redis Cache', ok: true },
-                { name: 'ZAP Scanner', ok: true },
-                { name: 'Celery Workers', ok: false },
-              ].map(svc => (
-                <div key={svc.name} className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">{svc.name}</span>
-                  <span className={`flex items-center gap-1.5 text-xs ${svc.ok ? 'text-green-400' : 'text-red-400'}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${svc.ok ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-                    {svc.ok ? 'Online' : 'Offline'}
-                  </span>
-                </div>
-              ))}
+            className="card">
+            <div className="card-header">
+              <h3 className="card-title">System Health</h3>
+            </div>
+            <div className="card-body">
+              <div className="space-y-1">
+                {[
+                  { name: 'API Backend', ok: true },
+                  { name: 'PostgreSQL Database', ok: true },
+                  { name: 'Redis Cache Server', ok: true },
+                  { name: 'ZAP Scanner Daemon', ok: true },
+                  { name: 'Celery Workers', ok: false },
+                ].map(svc => (
+                  <div key={svc.name} className="health-row">
+                    <span className="health-name font-medium">{svc.name}</span>
+                    <span className={`health-status uppercase font-bold text-[9px] ${svc.ok ? 'text-[#00ff9d]' : 'text-[#ef4444]'}`}>
+                      <span className={`health-dot ${svc.ok ? 'bg-[#00ff9d] animate-pulse' : 'bg-[#ef4444]'}`} />
+                      {svc.ok ? 'Online' : 'Offline'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
 
         {/* User management table */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-          className="glass-card overflow-hidden">
-          <div className="flex items-center justify-between p-5 border-b border-[#1a2a45]">
-            <h3 className="font-semibold text-white text-sm">User Management</h3>
-            <button className="text-xs text-cyan-400 hover:text-cyan-300">View all →</button>
+          className="card overflow-hidden">
+          <div className="card-header">
+            <h3 className="card-title">User Management</h3>
+            <button className="text-[10px] font-bold uppercase tracking-wider text-[#00d4ff] hover:text-cyan-300">View all →</button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="data-table">
               <thead>
-                <tr className="border-b border-[#1a2a45] text-xs text-slate-500">
-                  <th className="text-left px-5 py-3 font-medium">User</th>
-                  <th className="text-left px-5 py-3 font-medium">Role</th>
-                  <th className="text-left px-5 py-3 font-medium hidden sm:table-cell">Scans</th>
-                  <th className="text-left px-5 py-3 font-medium hidden md:table-cell">Joined</th>
-                  <th className="text-left px-5 py-3 font-medium">Status</th>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th className="hidden sm:table-cell">Scans</th>
+                  <th className="hidden md:table-cell">Joined</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {USERS.map((u, i) => (
-                  <tr key={u.email} className="border-b border-[#1a2a45]/40 hover:bg-white/5 transition-colors">
-                    <td className="px-5 py-3">
-                      <div className="font-medium text-white">{u.name}</div>
-                      <div className="text-xs text-slate-500">{u.email}</div>
+                  <tr key={u.email} className="cursor-pointer">
+                    <td>
+                      <div className="font-bold text-white text-xs">{u.name}</div>
+                      <div className="text-[10px] text-slate-500 font-mono mt-0.5">{u.email}</div>
                     </td>
-                    <td className="px-5 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded border ${
-                        u.role === 'admin' ? 'text-purple-400 border-purple-500/30 bg-purple-950/30' :
-                        u.role === 'analyst' ? 'text-cyan-400 border-cyan-500/30 bg-cyan-950/30' :
-                        'text-slate-400 border-[#1a2a45]'
+                    <td>
+                      <span className={`badge ${
+                        u.role === 'admin' ? 'badge-critical' :
+                        u.role === 'analyst' ? 'badge-info' : 'badge-pending'
                       }`}>{u.role}</span>
                     </td>
-                    <td className="px-5 py-3 hidden sm:table-cell text-slate-300 font-mono">{u.scans}</td>
-                    <td className="px-5 py-3 hidden md:table-cell text-slate-400 text-xs">{u.joined}</td>
-                    <td className="px-5 py-3">
-                      <span className={`text-xs flex items-center gap-1.5 ${u.status === 'active' ? 'text-green-400' : 'text-slate-500'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${u.status === 'active' ? 'bg-green-400' : 'bg-slate-600'}`} />
+                    <td className="hidden sm:table-cell text-slate-300 font-mono">{u.scans}</td>
+                    <td className="hidden md:table-cell text-slate-500 font-mono">{u.joined}</td>
+                    <td>
+                      <span className={`badge ${u.status === 'active' ? 'badge-completed' : 'badge-pending'}`}>
                         {u.status}
                       </span>
                     </td>

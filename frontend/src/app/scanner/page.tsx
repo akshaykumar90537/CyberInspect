@@ -150,11 +150,11 @@ export default function ScannerPage() {
   }
 
   const logColor = (lvl: string) => ({
-    info: 'text-slate-400',
-    success: 'text-green-400',
-    warning: 'text-yellow-400',
-    error: 'text-red-400',
-  }[lvl] ?? 'text-slate-400')
+    info: 'tl-info',
+    success: 'tl-success',
+    warning: 'tl-warning',
+    error: 'tl-error',
+  }[lvl] ?? 'tl-info')
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -162,28 +162,32 @@ export default function ScannerPage() {
 
       <div className="flex-1 p-6 max-w-5xl mx-auto w-full space-y-6">
         {/* URL Input card */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6">
-          <h2 className="text-base font-semibold text-white mb-1">Target URL</h2>
-          <p className="text-sm text-slate-500 mb-4">Enter the web application you want to scan. Ensure you have authorization.</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card p-5">
+          <div className="card-header !p-0 !border-b-0 mb-3">
+            <div>
+              <h2 className="card-title">Target Configuration</h2>
+              <p className="card-sub">Enter the web application you want to scan. Ensure you have explicit authorization.</p>
+            </div>
+          </div>
           <div className="flex gap-3">
-            <div className="flex-1 flex items-center gap-3 bg-[#060912] border border-[#1a2a45] focus-within:border-cyan-500/50 rounded-xl px-4 py-3 transition-all">
-              <Globe size={16} className="text-slate-500 shrink-0" />
+            <div className="flex-1 flex items-center gap-3 bg-[#060912] border border-[#1a2a45] focus-within:border-[rgba(0,212,255,0.4)] rounded-xl px-4 py-2.5 transition-all">
+              <span className="text-slate-600 font-mono text-sm shrink-0 select-none">🌐</span>
               <input
                 value={url}
                 onChange={e => setUrl(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && phase === 'idle' && startScan()}
                 placeholder="https://target-application.com"
                 disabled={phase === 'scanning'}
-                className="flex-1 bg-transparent text-white placeholder-slate-600 outline-none text-sm font-mono"
+                className="flex-1 bg-transparent text-white placeholder-slate-600 outline-none text-xs font-mono"
               />
             </div>
             <button
               onClick={startScan}
               disabled={phase === 'scanning' || !url.trim()}
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl font-medium text-sm transition-all hover:shadow-lg hover:shadow-cyan-500/25 whitespace-nowrap">
+              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl font-semibold text-xs tracking-wider uppercase transition-all hover:shadow-lg hover:shadow-cyan-500/25 whitespace-nowrap">
               {phase === 'scanning'
-                ? <><Loader2 size={15} className="animate-spin" /> Scanning...</>
-                : <><Scan size={15} /> Launch Scan</>}
+                ? <><Loader2 size={13} className="animate-spin" /> Scanning...</>
+                : <><Scan size={13} /> Launch Scan</>}
             </button>
           </div>
         </motion.div>
@@ -198,15 +202,15 @@ export default function ScannerPage() {
                 disabled={phase === 'scanning'}
                 className={`text-left p-4 rounded-xl border transition-all ${
                   scanType === type.id
-                    ? 'border-cyan-500/40 bg-cyan-950/20'
-                    : 'border-[#1a2a45] bg-[#0f1929]/50 hover:border-[#2a3a55]'
+                    ? 'border-[rgba(0,212,255,0.3)] bg-gradient-to-r from-[rgba(0,212,255,0.08)] to-[rgba(59,130,246,0.08)]'
+                    : 'border-[#0f2040] bg-[#0c1526] hover:border-[#1a2a45]'
                 }`}>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <type.icon size={15} style={{ color: type.color }} />
-                  <span className="text-sm font-medium text-white">{type.label}</span>
-                  {scanType === type.id && <CheckCircle2 size={13} className="text-cyan-400 ml-auto" />}
+                  <type.icon size={14} style={{ color: type.color }} />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">{type.label}</span>
+                  {scanType === type.id && <span className="ml-auto text-[#00d4ff] text-xs font-bold">✓</span>}
                 </div>
-                <p className="text-xs text-slate-500">{type.desc}</p>
+                <p className="text-[10px] text-slate-500 leading-normal">{type.desc}</p>
               </button>
             ))}
           </div>
@@ -218,44 +222,33 @@ export default function ScannerPage() {
             <motion.div
               initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="glass-card overflow-hidden">
+              className="terminal">
               {/* Terminal header */}
-              <div className="flex items-center justify-between px-5 py-3 bg-[#060912] border-b border-[#1a2a45]">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/70" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/70" />
-                  </div>
-                  <span className="text-xs font-mono text-slate-500">cyberinspect@scanner — {url || 'target'}</span>
+              <div className="terminal-header">
+                <div className="term-dots">
+                  <div className="term-dot" style={{ background: '#ef4444' }} />
+                  <div className="term-dot" style={{ background: '#eab308' }} />
+                  <div className="term-dot" style={{ background: '#22c55e' }} />
                 </div>
-                <div className="flex items-center gap-2">
-                  {phase === 'scanning' && (
-                    <span className="flex items-center gap-1.5 text-xs text-cyan-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                      LIVE
-                    </span>
-                  )}
-                  {phase === 'done' && (
-                    <span className="flex items-center gap-1.5 text-xs text-green-400">
-                      <CheckCircle2 size={12} /> COMPLETE
-                    </span>
-                  )}
-                  <span className="text-xs font-mono text-slate-600">{progress}%</span>
+                <span className="term-title">cyberinspect@scanner — {url || 'target'}</span>
+                <div className="term-status">
+                  {phase === 'scanning' && <span className="term-live">● LIVE</span>}
+                  {phase === 'done' && <span className="term-done">✓ COMPLETE</span>}
+                  <span className="text-slate-600 font-mono text-[10px] ml-1">{progress}%</span>
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div className="h-0.5 bg-[#1a2a45]">
+              <div className="terminal-progress">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                  className="terminal-progress-fill"
                   animate={{ width: `${progress}%` }}
                   transition={{ type: 'spring', stiffness: 100, damping: 20 }}
                 />
               </div>
 
               {/* Log output */}
-              <div className="p-5 font-mono text-xs space-y-1 max-h-80 overflow-y-auto bg-[#060912]/80">
+              <div className="terminal-body !max-h-80">
                 <AnimatePresence initial={false}>
                   {logs.map((log, i) => (
                     <motion.div
@@ -263,7 +256,7 @@ export default function ScannerPage() {
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       className={`flex gap-3 leading-relaxed ${logColor(log.lvl)}`}>
-                      <span className="text-slate-600 shrink-0 select-none">{log.ts}</span>
+                      <span className="tl-ts">{log.ts}</span>
                       <span>{log.msg}</span>
                     </motion.div>
                   ))}
@@ -272,7 +265,7 @@ export default function ScannerPage() {
                   <motion.span
                     animate={{ opacity: [1, 0, 1] }}
                     transition={{ repeat: Infinity, duration: 0.8 }}
-                    className="text-cyan-400">█</motion.span>
+                    className="cursor">█</motion.span>
                 )}
                 <div ref={logsEndRef} />
               </div>
@@ -281,16 +274,16 @@ export default function ScannerPage() {
               {phase === 'done' && (
                 <motion.div
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="px-5 py-4 bg-green-950/20 border-t border-green-800/30 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-green-400 text-sm">
-                    <CheckCircle2 size={16} />
-                    Scan complete! Results are ready.
+                  className="px-5 py-4 bg-[rgba(34,197,94,0.03)] border-t border-[rgba(34,197,94,0.15)] flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[#00ff9d] text-xs font-semibold uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] animate-pulse" />
+                    Scan complete! Results are ready for analysis.
                   </div>
                   {scanId && (
                     <button
                       onClick={() => router.push(`/results/${scanId}`)}
-                      className="flex items-center gap-2 text-sm bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-400 px-4 py-2 rounded-lg transition-all">
-                      View Results <ChevronRight size={14} />
+                      className="flex items-center gap-1.5 text-xs bg-[rgba(0,212,255,0.12)] hover:bg-[rgba(0,212,255,0.22)] border border-[rgba(0,212,255,0.3)] text-[#00d4ff] px-4 py-2 rounded-lg font-semibold tracking-wide uppercase transition-all">
+                      View Results <ChevronRight size={13} />
                     </button>
                   )}
                 </motion.div>
@@ -302,17 +295,17 @@ export default function ScannerPage() {
         {/* Tips */}
         {phase === 'idle' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             {[
               { icon: Shield, title: 'Always get authorization', desc: 'Only scan sites you own or have explicit permission to test.' },
               { icon: Clock, title: 'Quick scan in ~30s', desc: 'Great for CI/CD pipelines. Checks headers, SSL, and cookies.' },
               { icon: Settings2, title: 'Deep scan for full audit', desc: 'Use Deep Scan for comprehensive penetration testing.' },
             ].map(tip => (
-              <div key={tip.title} className="flex gap-3 p-4 rounded-xl bg-[#0f1929]/50 border border-[#1a2a45]/50">
-                <tip.icon size={16} className="text-slate-500 shrink-0 mt-0.5" />
+              <div key={tip.title} className="flex gap-3 p-4 rounded-xl bg-[#0c1526] border border-[#0f2040] hover:border-[#1a2a45] transition-colors">
+                <tip.icon size={15} className="text-slate-500 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-medium text-slate-300 mb-0.5">{tip.title}</div>
-                  <div className="text-xs text-slate-500">{tip.desc}</div>
+                  <div className="font-bold text-slate-300 mb-0.5 uppercase tracking-wide text-[10px]">{tip.title}</div>
+                  <div className="text-[10px] text-slate-500 leading-normal">{tip.desc}</div>
                 </div>
               </div>
             ))}
